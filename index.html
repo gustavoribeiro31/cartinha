@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Minha Bia ❤️</title>
+    <style>
+        /* --- ESTILO GLOBAL E FUNDO DE FOTOS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0b0b;
+            color: #ffffff;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* CONTAINER DO MOSAICO DE FUNDO (COM ALGORITMO DENSE PARA ELIMINAR ESPAÇOS PRETOS) */
+        .fundo-mosaico {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); 
+            grid-auto-rows: 140px; 
+            grid-auto-flow: dense; /* Força o preenchimento automático de qualquer buraco preto */
+            gap: 6px;
+            padding: 6px;
+            overflow: hidden;
+            opacity: 0.8; 
+        }
+
+        .fundo-mosaico img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #111;
+        }
+
+        /* Variando os tamanhos de forma equilibrada no grid */
+        .fundo-mosaico img:nth-child(4n) { grid-column: span 2; grid-row: span 2; }
+        .fundo-mosaico img:nth-child(6n) { grid-column: span 1; grid-row: span 2; }
+
+        /* A SOMBRA ESCURA POR CIMA DAS FOTOS */
+        .camada-escura {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(180deg, rgba(11, 11, 11, 0.4) 0%, rgba(11, 11, 11, 0.45) 50%, rgba(11, 11, 11, 0.4) 100%);
+            backdrop-filter: blur(1px); 
+        }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px 20px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.7rem;
+            color: #00d2ff;
+            text-shadow: 0 0 20px #00d2ffaa, 2px 2px 4px #000000;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #ff3366;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px #000000;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .texto-romantico {
+            background: rgba(11, 11, 11, 0.85); 
+            border-left: 4px solid #ff3366;
+            border-right: 4px solid #00d2ff;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+            transition: transform 0.3s ease;
+        }
+
+        .texto-romantico:hover {
+            transform: scale(1.02);
+        }
+
+        .texto-romantico p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 1px 1px 2px #000000;
+        }
+
+        /* --- SEÇÃO DA CARTA FECHADA (ENVELOPE MAIOR) --- */
+        .secao-carta {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        .secao-carta h3 {
+            color: #00d2ff;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px #00d2ff55, 1px 1px 3px #000000;
+        }
+
+        .envelope {
+            width: 150px;
+            height: 150px;
+            background-color: #ff3366;
+            margin: 0 auto;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.6);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .envelope:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 45px #ff3366cc;
+        }
+
+        .envelope-aba {
+            width: 0;
+            height: 0;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-top: 65px solid #d61b4b;
+            position: absolute;
+            top: 0;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .envelope-texto {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 55px;
+            z-index: 2;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* --- JANELA MODAL (CARTA ABERTA COM FUNDO DE FOTOS VAZADO) --- */
+        .modal-carta {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); 
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .conteudo-carta {
+            background: rgba(15, 15, 15, 0.9); /* Revela as fotos por trás de forma nítida */
+            color: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh; 
+            overflow-y: auto; 
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            position: relative;
+            border: 3px solid #ff3366;
+            backdrop-filter: blur(10px); 
+        }
+
+        .conteudo-carta h2 {
+            color: #ff3366;
+            margin-bottom: 20px;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+        }
+
+        .conteudo-carta p {
+            font-family: 'Georgia', serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            white-space: pre-line;
+            text-shadow: 1px 1px 3px #000000; 
+        }
+
+        .botao-fechar {
+            margin-top: 25px;
+            background-color: #ff3366;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .botao-fechar:hover { 
+            background-color: #d61b4b; 
+        }
+
+        /* --- RESPONSIVIDADE PARA TABLET E CELULAR --- */
+        @media (max-width: 900px) {
+            .fundo-mosaico { grid-template-columns: repeat(4, 1fr); } 
+        }
+
+        @media (max-width: 480px) {
+            .fundo-mosaico { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 110px; } 
+            header h1 { font-size: 2.1rem; }
+            header p { font-size: 1rem; }
+            .texto-romantico p { font-size: 1rem; }
+            .conteudo-carta { padding: 20px; max-height: 80vh; } 
+            .conteudo-carta p { font-size: 1rem; }
+            .envelope { width: 130px; height: 130px; } 
+            .envelope-aba { border-left: 65px solid transparent; border-right: 65px solid transparent; border-top: 55px solid #d61b4b; }
+            .envelope-texto { margin-top: 45px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fundo-mosaico">
+        <img src="foto1.jpeg"><img src="foto2.jpeg"><img src="foto3.jpeg"><img src="foto4.jpeg">
+        <img src="foto5.jpeg"><img src="foto6.jpeg"><img src="foto7.jpeg"><img src="foto8.jpeg">
+        <img src="foto9.jpeg"><img src="foto10.jpeg"><img src="foto11.jpeg"><img src="foto12.jpeg">
+        <img src="foto13.jpeg"><img src="foto14.jpeg"><img src="foto15.jpeg"><img src="foto16.jpeg">
+        <img src="foto17.jpeg"><img src="foto18.jpeg"><img src="foto19.jpeg"><img src="foto20.jpeg">
+    </div>
+
+    <div class="camada-escura"></div>
+
+    <header>
+        <h1>Para minha Bia ❤️</h1>
+        <p>Feliz Dia Dos Namorados Amor</p>
+    </header>
+
+    <div class="container">
+
+        <div class="texto-romantico">
+            <p>Amor, quando eu estava montando esse fundo de fotos cheio de registros nossos me faz pensar o quanto amo nossos momentos. Cada lugar, cada sorriso e cada momento ao seu lado se tornou uma parte essencial da minha vida. 🥰</p>
+        </div>
+
+        <div class="texto-romantico">
+            <p>Gosto muito da nossa parceria, nossas risadas do nada e a forma como você me apoia em tudo. Com você, o dia a dia ganha muito mais cor. Obrigado por ser essa companheira pra mim!.</p>
+        </div>
+
+        <div class="texto-romantico">
+            <p>Que Deus abençoe muito nosso caminho, para anos e anos cheios de planos, conquistas e muito amor. Este cantinho digital é só um pedacinho do tamanho do que você representa para mim.</p>
+        </div>
+
+        <div class="secao-carta">
+            <h3>Tenho um segredinho guardado aqui...</h3>
+            <div class="envelope" onclick="abrirCarta()">
+                <div class="envelope-aba"></div>
+                <div class="envelope-texto">Abra Aqui</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-carta" id="modalCarta">
+        <div class="conteudo-carta">
+            <h2>Minha cartinha pra você ❤️</h2>
+            <p>Meu Bem,
+
+            Escrevi essa cartinha nesse formato para você conseguir ler sempre que quiser, pra reafirmar o quanto eu amo você. 
+            
+            Namorar você é enxergar um motivo novo para ser feliz todos os dias.
+
+            Nos últimos dias sabendo que assim que chegar estarei com você logo me alegra de um jeito inexplicável no caminho de casa, algo que amo sentir.
+            
+            Obrigado por ser minha "colega de quarto", amor da minha vida e minha melhor amiga. Que a gente continue colecionando momentos, fotos, viagens e histórias lindas por muitos e muitos anos.
+            
+            Com todo carinho do meu coração,
+
+            Seu chato.</p>
+            
+            <button class="botao-fechar" onclick="fecharCarta()">Só fecha se me dar um beijinho!! 💋</button>
+        </div>
+    </div>
+
+    <script>
+        function abrirCarta() {
+            var modal = document.getElementById('modalCarta');
+            modal.style.display = 'flex';
+        }
+
+        function fecharCarta() {
+            var modal = document.getElementById('modalCarta');
+            modal.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
