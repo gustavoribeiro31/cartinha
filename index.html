@@ -22,7 +22,7 @@
             min-height: 100vh;
         }
 
-        /* CONTAINER DO MOSAICO DE FUNDO (COM ALGORITMO DENSE PARA ELIMINAR ESPAÇOS PRETOS) */
+        /* CONTAINER DO MOSAICO DE FUNDO */
         .fundo-mosaico {
             position: fixed;
             top: 0;
@@ -33,7 +33,7 @@
             display: grid;
             grid-template-columns: repeat(6, 1fr); 
             grid-auto-rows: 140px; 
-            grid-auto-flow: dense; /* Força o preenchimento automático de qualquer buraco preto */
+            grid-auto-flow: dense; /* Preenche os espaços vazios de forma inteligente */
             gap: 6px;
             padding: 6px;
             overflow: hidden;
@@ -48,7 +48,7 @@
             background-color: #111;
         }
 
-        /* Variando os tamanhos de forma equilibrada no grid */
+        /* Variando os tamanhos de forma dinâmica no grid */
         .fundo-mosaico img:nth-child(4n) { grid-column: span 2; grid-row: span 2; }
         .fundo-mosaico img:nth-child(6n) { grid-column: span 1; grid-row: span 2; }
 
@@ -117,7 +117,7 @@
             text-shadow: 1px 1px 2px #000000;
         }
 
-        /* --- SEÇÃO DA CARTA FECHADA (ENVELOPE MAIOR) --- */
+        /* --- SEÇÃO DA CARTA FECHADA --- */
         .secao-carta {
             text-align: center;
             margin-top: 40px;
@@ -170,7 +170,7 @@
             text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
 
-        /* --- JANELA MODAL (CARTA ABERTA COM FUNDO DE FOTOS VAZADO) --- */
+        /* --- JANELA MODAL (CARTA ABERTA) --- */
         .modal-carta {
             display: none;
             position: fixed;
@@ -186,7 +186,7 @@
         }
 
         .conteudo-carta {
-            background: rgba(15, 15, 15, 0.9); /* Revela as fotos por trás de forma nítida */
+            background: rgba(15, 15, 15, 0.9); 
             color: #ffffff;
             width: 100%;
             max-width: 480px;
@@ -254,7 +254,7 @@
 </head>
 <body>
 
-    <div class="fundo-mosaico">
+    <div class="fundo-mosaico" id="mosaicoContainer">
         <img src="foto1.jpeg"><img src="foto2.jpeg"><img src="foto3.jpeg"><img src="foto4.jpeg">
         <img src="foto5.jpeg"><img src="foto6.jpeg"><img src="foto7.jpeg"><img src="foto8.jpeg">
         <img src="foto9.jpeg"><img src="foto10.jpeg"><img src="foto11.jpeg"><img src="foto12.jpeg">
@@ -315,6 +315,25 @@
     </div>
 
     <script>
+        // Função executada assim que a página carrega
+        window.onload = function() {
+            var container = document.getElementById('mosaicoContainer');
+            var imagens = Array.from(container.getElementsByTagName('img'));
+            
+            // Algoritmo de Fisher-Yates para embaralhar o array de imagens de forma limpa
+            for (var i = imagens.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = imagens[i];
+                imagens[i] = imagens[j];
+                imagens[j] = temp;
+            }
+            
+            // Readiciona as imagens na nova ordem aleatória dentro do container
+            imagens.forEach(function(img) {
+                container.appendChild(img);
+            });
+        };
+
         function abrirCarta() {
             var modal = document.getElementById('modalCarta');
             modal.style.display = 'flex';
